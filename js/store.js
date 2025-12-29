@@ -126,40 +126,54 @@ class Store {
 
     // New: Upload Image to Backend
     async uploadImage(file) {
-        const formData = new FormData();
-        formData.append('file', file);
+        // DIRECT UPLOAD MODE (Static Compatible)
+        // This converts the image file into a compressed text string (Base64)
+        // so it can be stored directly in the website config without a backend server.
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    // Create Canvas for compression
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
 
-        try {
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
+                    // Max dimensions - Optimized for GitHub Pages Config Size (1000px max)
+                    const MAX_WIDTH = 1000;
+                    const MAX_HEIGHT = 1000;
+                    let width = img.width;
+                    let height = img.height;
 
-            if (res.status === 401) {
-                throw new Error("Unauthorized");
-            }
+                    // Maintain Aspect Ratio
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
 
-            if (res.ok) {
-                const data = await res.json();
-                return data.url; // Returns relative path e.g. "assets/uploads/123_dog.jpg"
-            } else {
-                throw new Error("Upload failed");
-            }
-        } catch (e) {
-            console.warn("Upload error (Static Mode?):", e);
-            if (e.message === "Unauthorized") {
-                alert("Session expired. Please login again.");
-                this.state.editMode = false;
-                this.notify();
-                throw e;
-            }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
 
-            // Fallback for Static Hosting: Prompt for URL
-            const manualUrl = prompt("Hosting Mode: Backend upload unavailable. Please paste a direct Image URL (e.g. from Unsplash or Imgur):");
-            if (manualUrl) return manualUrl;
+                    // Compress to JPEG 0.75 (Reduces 5MB file -> ~150KB string)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
 
-            throw new Error("No URL provided");
-        }
+                    resolve(dataUrl);
+                };
+            };
+            reader.onerror = error => {
+                console.error("Image read failed:", error);
+                reject(error);
+            };
+        });
     }
 
     resetContent() {
