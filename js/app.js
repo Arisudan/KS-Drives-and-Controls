@@ -1,4 +1,4 @@
-import { store } from './store.js?v=FIX_STORE_V10';
+import { store } from './store.js?v=STORE_LOGIN_PATCH_V2';
 // Expose store globally for inline onclick handlers
 window.store = store;
 
