@@ -7,7 +7,7 @@ import { renderServices } from './pages/services.js?v=SERVICES_GLASS';
 import { renderContact } from './pages/contact.js?v=STATIC_MIGRATION';
 import { renderNavbar } from './components/navbar.js?v=NAVBAR_DASH_FIX';
 import { renderFooter } from './components/footer.js?v=FOOTER_ALIGN_FIX';
-import { renderAdmin } from './pages/admin.js?v=SEO_ADMIN_V2';
+import { renderAdmin } from './pages/admin.js?v=ADMIN_LOGIN_FIX';
 import { renderSearch } from './pages/search.js?v=SEARCH_PAGE_FIX';
 
 export function initRouter() {

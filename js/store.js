@@ -194,8 +194,19 @@ class Store {
                 return true;
             }
         } catch (e) {
-            console.error("Login error:", e);
+            console.warn("Backend login failed (Static Mode?):", e);
         }
+
+        // Static Fallback
+        // WARNING: This is client-side only and visible in source code.
+        // Intended for static hosting (GitHub Pages) where no backend exists.
+        if (password === 'admin') {
+            alert("Logged in via Static Mode (Local Admin). Changes will save to your browser.");
+            this.state.editMode = true;
+            this.notify();
+            return true;
+        }
+
         return false;
     }
 
